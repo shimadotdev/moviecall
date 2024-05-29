@@ -1,0 +1,4 @@
+{
+    "api_key" : "your themoviedb api key here",
+    "api_base_url" : "https://api.themoviedb.org/3"
+}
