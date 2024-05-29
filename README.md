@@ -41,5 +41,5 @@ Contributions are welcome! If you have suggestions for improvements or find bugs
 This package is open-source software licensed under the [MIT licensev](https://opensource.org/licenses/MIT).
 
 ### Contact
-For any questions or feedback, please contact [Shima.Dev](https://shima.dev)
+For any questions or feedback, please contact [hi@shima.dev](mailto:hi@shima.dev)
 
