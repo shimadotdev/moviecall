@@ -14,16 +14,37 @@
 
 To run the application, you need to have Go installed on your machine. If you don't have Go installed, you can download it from the [official Go website](https://golang.org/dl/).
 
+## TMDB API
+
+The application uses the TMDB (The Movie Database) API for retrieving movie and TV show data. You can sign up for a TMDB API key by visiting [TMDB website](https://developer.themoviedb.org/) and following the instructions.
+
+## Build
+
+To build the application, ensure you have created a .env file based on .env.example and added your TMDB API key. Then, run:
+
+```bash
+make moviecall
+```
+
+## Clean
+
+To remove the binary execution file, run:
+
+```bash
+make clean
+```
+
 ## Usage
 
-To use the application, navigate to the `cmd` directory and run the `moviecall.go` file with the appropriate flags for searching movies or TV shows.
+To use the application, you can utilize the commands below:
+
 
 ### Search for a Movie
 
 To search for a movie by its title, use the `-m` flag followed by the movie name:
 
 ```bash
-go run moviecall.go -m "movie name"
+./moviecall -m "movie name"
 ```
 
 ### Search for a TV Show
@@ -31,7 +52,7 @@ go run moviecall.go -m "movie name"
 To search for a TV show by its title, use the -t flag followed by the TV show name:
 
 ```bash
-go run moviecall.go -t "tvshow name"
+./moviecall -t "tvshow name"
 ```
 
 ### Contributing
