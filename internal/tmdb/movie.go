@@ -43,11 +43,14 @@ func formatMovieDataDetail(detail MovieDataDetail) []string {
 	if len(detail.ReleaseDate) >= 4 {
 		year = detail.ReleaseDate[:4]
 	}
+	url := fmt.Sprintf("https://www.themoviedb.org/movie/%d-%s", detail.Id, app.ConvertString(detail.Title))
+
 	return []string{
 		app.EllipsizeString(detail.Title, 30),
 		year,
 		detail.Language,
 		fmt.Sprintf("%.1f", detail.Rating),
 		app.FormatGenres(detail.Genres),
+		url,
 	}
 }

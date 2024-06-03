@@ -43,11 +43,15 @@ func formatTvDataDetail(detail TvDataDetail) []string {
 	if len(detail.FirstAirDate) >= 4 {
 		year = detail.FirstAirDate[:4]
 	}
+
+	url := fmt.Sprintf("https://www.themoviedb.org/tv/%d-%s", detail.Id, app.ConvertString(detail.Name))
+
 	return []string{
 		app.EllipsizeString(detail.Name, 30),
 		year,
 		detail.Language,
 		fmt.Sprintf("%.1f", detail.Rating),
 		app.FormatGenres(detail.Genres),
+		url,
 	}
 }

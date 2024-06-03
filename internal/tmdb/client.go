@@ -46,7 +46,7 @@ func Initiate() (*TMDB, error) {
 	}, nil
 }
 
-func GetResult[T any](endpoint string, payload T) (T, error) {
+func getResult[T any](endpoint string, payload T) (T, error) {
 	response, err := http.Get(endpoint)
 	if err != nil {
 		return payload, fmt.Errorf("error requesting API endpoint: %v", err)
@@ -85,23 +85,23 @@ func SearchByKeyword(searchType, searchTerm string) error {
 
 	switch searchType {
 	case "tv":
-		payload := tmdb.SearchTv(searchTerm)
+		payload := tmdb.searchTv(searchTerm)
 		idList := getIdListFromPayload(payload.Results)
-		list, err = GetDetailsByIdList("tv", idList)
+		list, err = getDetailsByIdList("tv", idList)
 		if err != nil {
 			return err
 		}
 		tableTitle = "Results for TV show: " + searchTerm
-		header = []string{"Title", "First Air Date", "Language", "Rating", "Genres"}
+		header = []string{"Title", "First Air Date", "Language", "Rating", "Genres", "Link"}
 	case "movie":
-		payload := tmdb.SearchMovie(searchTerm)
+		payload := tmdb.searchMovie(searchTerm)
 		idList := getIdListFromPayload(payload.Results)
-		list, err = GetDetailsByIdList("movie", idList)
+		list, err = getDetailsByIdList("movie", idList)
 		if err != nil {
 			return err
 		}
 		tableTitle = "Results for movie: " + searchTerm
-		header = []string{"Title", "Release Date", "Language", "Rating", "Genres"}
+		header = []string{"Title", "Release Date", "Language", "Rating", "Genres",  "Link"}
 	default:
 		return fmt.Errorf("invalid search type: %s", searchType)
 	}
@@ -123,7 +123,7 @@ func getIdListFromPayload[T any](results []T) []int32 {
 	return idList
 }
 
-func GetDetailsByIdList(searchType string, idList []int32) ([][]string, error) {
+func getDetailsByIdList(searchType string, idList []int32) ([][]string, error) {
 	var wg sync.WaitGroup
 	resultCh := make(chan any, len(idList))
 
@@ -138,10 +138,10 @@ func GetDetailsByIdList(searchType string, idList []int32) ([][]string, error) {
 			defer wg.Done()
 			switch searchType {
 			case "tv":
-				res := tmdb.GetTvById(id)
+				res := tmdb.getTvById(id)
 				resultCh <- res
 			case "movie":
-				res := tmdb.GetMovieById(id)
+				res := tmdb.getMovieById(id)
 				resultCh <- res
 			}
 		}(id)
@@ -164,33 +164,33 @@ func GetDetailsByIdList(searchType string, idList []int32) ([][]string, error) {
 	return resultList, nil
 }
 
-func (t *TMDB) GetMovieById(id int32) MovieDataDetail {
+func (t *TMDB) getMovieById(id int32) MovieDataDetail {
 	endpoint := fmt.Sprintf("%s/movie/%d?api_key=%s", t.ApiBaseUrl, id, t.ApiKey)
 	var movieDetail MovieDataDetail
-	res, err := GetResult(endpoint, movieDetail)
+	res, err := getResult(endpoint, movieDetail)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return res
 }
 
-func (t *TMDB) GetTvById(id int32) TvDataDetail {
+func (t *TMDB) getTvById(id int32) TvDataDetail {
 	endpoint := fmt.Sprintf("%s/tv/%d?api_key=%s", t.ApiBaseUrl, id, t.ApiKey)
 	var tvDetailData TvDataDetail
-	res, err := GetResult(endpoint, tvDetailData)
+	res, err := getResult(endpoint, tvDetailData)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return res
 }
 
-func (t *TMDB) SearchTv(keyword string) TvDataCollection {
+func (t *TMDB) searchTv(keyword string) TvDataCollection {
 
-	endpoint := fmt.Sprintf("%s/search/tv?query=%s&api_key=%s", t.ApiBaseUrl, keyword, t.ApiKey)
+	endpoint := fmt.Sprintf("%s/search/tv?query=%s&api_key=%s", t.ApiBaseUrl, app.ConvertString(keyword), t.ApiKey)
 
 	var tvCollection TvDataCollection
 
-	res, err := GetResult(endpoint, tvCollection)
+	res, err := getResult(endpoint, tvCollection)
 
 	if err != nil {
 		log.Fatal(err)
@@ -200,12 +200,12 @@ func (t *TMDB) SearchTv(keyword string) TvDataCollection {
 
 }
 
-func (t *TMDB) SearchMovie(keyword string) MovieDataCollection {
+func (t *TMDB) searchMovie(keyword string) MovieDataCollection {
 
-	endpoint := fmt.Sprintf("%s/search/movie?query=%s&api_key=%s", t.ApiBaseUrl, keyword, t.ApiKey)
+	endpoint := fmt.Sprintf("%s/search/movie?query=%s&api_key=%s", t.ApiBaseUrl, app.ConvertString(keyword), t.ApiKey)
 	var movieCollection MovieDataCollection
 
-	res, err := GetResult(endpoint, movieCollection)
+	res, err := getResult(endpoint, movieCollection)
 
 	if err != nil {
 		log.Fatal(err)
