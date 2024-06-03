@@ -16,7 +16,6 @@ import (
 
 var (
 	tmdbInstance *TMDB
-	once         sync.Once
 )
 
 type TMDB struct {
