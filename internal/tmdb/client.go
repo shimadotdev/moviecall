@@ -79,10 +79,10 @@ func getResult[T any](endpoint string, payload T) (T, error) {
 func SearchByKeyword(searchType, searchTerm string) error {
 
 	var (
-		list		[][]string
-		header		[]string
-		tableTitle	string
-		err			error
+		list       [][]string
+		header     []string
+		tableTitle string
+		err        error
 	)
 
 	switch searchType {
@@ -200,4 +200,3 @@ func (t *TMDB) searchMovie(keyword string) MovieDataCollection {
 	}
 	return res
 }
-
