@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"sync"
 
 	"github.com/joho/godotenv"
@@ -33,7 +32,7 @@ func init() {
 
 func initiate() (*TMDB, error) {
 	var initErr error
-	envPath := filepath.Join("..", ".env")
+	envPath := "./.env"
 	if _, err := os.Stat(envPath); os.IsNotExist(err) {
 		initErr = fmt.Errorf(".env file does not exist at path: %v", envPath)
 	}
