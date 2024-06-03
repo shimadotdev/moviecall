@@ -10,40 +10,47 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/joho/godotenv"
 	app "github.com/shimadotdev/moviecall/internal"
 )
 
-type ConfigFile struct {
-	ApiKey     string `json:"api_key"`
-	ApiBaseUrl string `json:"api_base_url"`
-}
+var (
+	tmdbInstance *TMDB
+	once         sync.Once
+)
 
 type TMDB struct {
 	ApiKey     string
 	ApiBaseUrl string
 }
 
-func Initiate() (*TMDB, error) {
-	wd, err := os.Getwd()
+func init() {
+	var err error
+	tmdbInstance, err = initiate()
 	if err != nil {
-		return nil, fmt.Errorf("error getting working directory: %v", err)
+		log.Fatalf("Failed to initialize TMDB instance: %v", err)
 	}
+}
 
-	relativePath := filepath.Join(wd, "../config.json")
-	configData, err := os.ReadFile(relativePath)
+func initiate() (*TMDB, error) {
+	var initErr error
+	envPath := filepath.Join("..", ".env")
+	if _, err := os.Stat(envPath); os.IsNotExist(err) {
+		initErr = fmt.Errorf(".env file does not exist at path: %v", envPath)
+	}
+	err := godotenv.Load(envPath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading configuration file: %v", err)
+		initErr = fmt.Errorf("error loading .env file")
+	}
+	tmdbInstance = &TMDB{
+		ApiKey:     os.Getenv("API_KEY"),
+		ApiBaseUrl: os.Getenv("API_BASE_URL"),
 	}
 
-	var configFile ConfigFile
-	if err := json.Unmarshal(configData, &configFile); err != nil {
-		return nil, fmt.Errorf("error unmarshaling configuration file: %v", err)
+	if initErr != nil {
+		return nil, initErr
 	}
-
-	return &TMDB{
-		ApiKey:     configFile.ApiKey,
-		ApiBaseUrl: configFile.ApiBaseUrl,
-	}, nil
+	return tmdbInstance, nil
 }
 
 func getResult[T any](endpoint string, payload T) (T, error) {
@@ -69,23 +76,18 @@ func getResult[T any](endpoint string, payload T) (T, error) {
 	return payload, nil
 }
 
-
 func SearchByKeyword(searchType, searchTerm string) error {
 
-	tmdb, err := Initiate()
-	if err != nil {
-		return err
-	}
-
 	var (
-		list       [][]string
-		header     []string
-		tableTitle string
+		list		[][]string
+		header		[]string
+		tableTitle	string
+		err			error
 	)
 
 	switch searchType {
 	case "tv":
-		payload := tmdb.searchTv(searchTerm)
+		payload := tmdbInstance.searchTv(searchTerm)
 		idList := getIdListFromPayload(payload.Results)
 		list, err = getDetailsByIdList("tv", idList)
 		if err != nil {
@@ -94,14 +96,14 @@ func SearchByKeyword(searchType, searchTerm string) error {
 		tableTitle = "Results for TV show: " + searchTerm
 		header = []string{"Title", "First Air Date", "Language", "Rating", "Genres", "Link"}
 	case "movie":
-		payload := tmdb.searchMovie(searchTerm)
+		payload := tmdbInstance.searchMovie(searchTerm)
 		idList := getIdListFromPayload(payload.Results)
 		list, err = getDetailsByIdList("movie", idList)
 		if err != nil {
 			return err
 		}
 		tableTitle = "Results for movie: " + searchTerm
-		header = []string{"Title", "Release Date", "Language", "Rating", "Genres",  "Link"}
+		header = []string{"Title", "Release Date", "Language", "Rating", "Genres", "Link"}
 	default:
 		return fmt.Errorf("invalid search type: %s", searchType)
 	}
@@ -127,21 +129,16 @@ func getDetailsByIdList(searchType string, idList []int32) ([][]string, error) {
 	var wg sync.WaitGroup
 	resultCh := make(chan any, len(idList))
 
-	tmdb, err := Initiate()
-	if err != nil {
-		return nil, err
-	}
-
 	for _, id := range idList {
 		wg.Add(1)
 		go func(id int32) {
 			defer wg.Done()
 			switch searchType {
 			case "tv":
-				res := tmdb.getTvById(id)
+				res := tmdbInstance.getTvById(id)
 				resultCh <- res
 			case "movie":
-				res := tmdb.getMovieById(id)
+				res := tmdbInstance.getMovieById(id)
 				resultCh <- res
 			}
 		}(id)
@@ -185,33 +182,22 @@ func (t *TMDB) getTvById(id int32) TvDataDetail {
 }
 
 func (t *TMDB) searchTv(keyword string) TvDataCollection {
-
 	endpoint := fmt.Sprintf("%s/search/tv?query=%s&api_key=%s", t.ApiBaseUrl, app.ConvertString(keyword), t.ApiKey)
-
 	var tvCollection TvDataCollection
-
 	res, err := getResult(endpoint, tvCollection)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return res
-
 }
 
 func (t *TMDB) searchMovie(keyword string) MovieDataCollection {
-
 	endpoint := fmt.Sprintf("%s/search/movie?query=%s&api_key=%s", t.ApiBaseUrl, app.ConvertString(keyword), t.ApiKey)
 	var movieCollection MovieDataCollection
-
 	res, err := getResult(endpoint, movieCollection)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return res
-
 }
 
