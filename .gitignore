@@ -2,3 +2,4 @@
 /.vscode
 .env
 moviecall
+.DS_Store

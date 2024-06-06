@@ -24,31 +24,25 @@ type TMDB struct {
 
 func init() {
 	var err error
-	tmdbInstance, err = initiate()
+	tmdbInstance, err = func() (*TMDB, error) {
+		envPath := "./.env"
+		if _, err := os.Stat(envPath); os.IsNotExist(err) {
+			return nil, fmt.Errorf(".env file does not exist at path: %v", envPath)
+		}
+		if err := godotenv.Load(envPath); err != nil {
+			return nil, fmt.Errorf("error loading .env file: %v", err)
+		}
+
+		tmdbInstance := &TMDB{
+			ApiKey:     os.Getenv("API_KEY"),
+			ApiBaseUrl: os.Getenv("API_BASE_URL"),
+		}
+
+		return tmdbInstance, nil
+	}()
 	if err != nil {
 		log.Fatalf("Failed to initialize TMDB instance: %v", err)
 	}
-}
-
-func initiate() (*TMDB, error) {
-	var initErr error
-	envPath := "./.env"
-	if _, err := os.Stat(envPath); os.IsNotExist(err) {
-		initErr = fmt.Errorf(".env file does not exist at path: %v", envPath)
-	}
-	err := godotenv.Load(envPath)
-	if err != nil {
-		initErr = fmt.Errorf("error loading .env file")
-	}
-	tmdbInstance = &TMDB{
-		ApiKey:     os.Getenv("API_KEY"),
-		ApiBaseUrl: os.Getenv("API_BASE_URL"),
-	}
-
-	if initErr != nil {
-		return nil, initErr
-	}
-	return tmdbInstance, nil
 }
 
 func getResult[T any](endpoint string, payload T) (T, error) {
