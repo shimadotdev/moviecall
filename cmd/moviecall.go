@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	movie, tv := app.GetKeyword()
+	movie, tv, trendingMovies, trendingTvs := app.GetKeyword()
 
 	if movie != "" {
 		if err := tmdb.SearchByKeyword("movie", movie); err != nil {
@@ -18,6 +18,16 @@ func main() {
 		}
 	} else if tv != "" {
 		if err := tmdb.SearchByKeyword("tv", tv); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	} else if trendingMovies {
+		if err := tmdb.SearchByKeyword("trendingMovies", ""); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	} else if trendingTvs {
+		if err := tmdb.SearchByKeyword("trendingTvs", ""); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}

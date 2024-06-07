@@ -22,6 +22,60 @@ type TMDB struct {
 	ApiBaseUrl string
 }
 
+func SearchByKeyword(searchType, searchTerm string) error {
+
+	var (
+		list       [][]string
+		header     []string
+		tableTitle string
+		err        error
+	)
+
+	switch searchType {
+	case "tv":
+		payload := tmdbInstance.searchTv(searchTerm)
+		idList := getIdListFromPayload(payload.Results)
+		list, err = getDetailsByIdList("tv", idList)
+		if err != nil {
+			return err
+		}
+		tableTitle = "Results for TV show: " + searchTerm
+		header = []string{"Title", "First Air Date", "Language", "Rating", "Genres", "Link"}
+	case "trendingTvs":
+		payload := tmdbInstance.trendingTvs()
+		idList := getIdListFromPayload(payload.Results)
+		list, err = getDetailsByIdList("tv", idList)
+		if err != nil {
+			return err
+		}
+		tableTitle = "Results for trending TV shows:"
+		header = []string{"Title", "First Air Date", "Language", "Rating", "Genres", "Link"}
+	case "movie":
+		payload := tmdbInstance.searchMovie(searchTerm)
+		idList := getIdListFromPayload(payload.Results)
+		list, err = getDetailsByIdList("movie", idList)
+		if err != nil {
+			return err
+		}
+		tableTitle = "Results for movie: " + searchTerm
+		header = []string{"Title", "Release Date", "Language", "Rating", "Genres", "Link"}
+	case "trendingMovies":
+		payload := tmdbInstance.trendingMovies()
+		idList := getIdListFromPayload(payload.Results)
+		list, err = getDetailsByIdList("movie", idList)
+		if err != nil {
+			return err
+		}
+		tableTitle = "Results for trending movies:"
+		header = []string{"Title", "Release Date", "Language", "Rating", "Genres", "Link"}
+	default:
+		return fmt.Errorf("invalid search type: %s", searchType)
+	}
+
+	app.PrintTable(header, list, tableTitle)
+	return nil
+}
+
 func init() {
 	var err error
 	tmdbInstance, err = func() (*TMDB, error) {
@@ -66,42 +120,6 @@ func getResult[T any](endpoint string, payload T) (T, error) {
 	}
 
 	return payload, nil
-}
-
-func SearchByKeyword(searchType, searchTerm string) error {
-
-	var (
-		list       [][]string
-		header     []string
-		tableTitle string
-		err        error
-	)
-
-	switch searchType {
-	case "tv":
-		payload := tmdbInstance.searchTv(searchTerm)
-		idList := getIdListFromPayload(payload.Results)
-		list, err = getDetailsByIdList("tv", idList)
-		if err != nil {
-			return err
-		}
-		tableTitle = "Results for TV show: " + searchTerm
-		header = []string{"Title", "First Air Date", "Language", "Rating", "Genres", "Link"}
-	case "movie":
-		payload := tmdbInstance.searchMovie(searchTerm)
-		idList := getIdListFromPayload(payload.Results)
-		list, err = getDetailsByIdList("movie", idList)
-		if err != nil {
-			return err
-		}
-		tableTitle = "Results for movie: " + searchTerm
-		header = []string{"Title", "Release Date", "Language", "Rating", "Genres", "Link"}
-	default:
-		return fmt.Errorf("invalid search type: %s", searchType)
-	}
-
-	app.PrintTable(header, list, tableTitle)
-	return nil
 }
 
 func getIdListFromPayload[T any](results []T) []int32 {
@@ -187,6 +205,26 @@ func (t *TMDB) searchMovie(keyword string) MovieDataCollection {
 	endpoint := fmt.Sprintf("%s/search/movie?query=%s&api_key=%s", t.ApiBaseUrl, app.ConvertString(keyword), t.ApiKey)
 	var movieCollection MovieDataCollection
 	res, err := getResult(endpoint, movieCollection)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return res
+}
+
+func (t *TMDB) trendingMovies() MovieDataCollection {
+	endpoint := fmt.Sprintf("%s/trending/movie/day?api_key=%s", t.ApiBaseUrl, t.ApiKey)
+	var movieCollection MovieDataCollection
+	res, err := getResult(endpoint, movieCollection)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return res
+}
+
+func (t *TMDB) trendingTvs() TvDataCollection {
+	endpoint := fmt.Sprintf("%s/trending/tv/day?api_key=%s", t.ApiBaseUrl, t.ApiKey)
+	var tvCollection TvDataCollection
+	res, err := getResult(endpoint, tvCollection)
 	if err != nil {
 		log.Fatal(err)
 	}

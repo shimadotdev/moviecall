@@ -26,6 +26,7 @@ type MovieData struct {
 type MovieDataDetail struct {
 	Adult       bool    `json:"adult"`
 	Id          int64   `json:"id"`
+	ImdbId      string  `json:"imdb_id"`
 	Language    string  `json:"original_language"`
 	Title       string  `json:"title"`
 	Overview    string  `json:"overview"`
@@ -43,7 +44,7 @@ func formatMovieDataDetail(detail MovieDataDetail) []string {
 	if len(detail.ReleaseDate) >= 4 {
 		year = detail.ReleaseDate[:4]
 	}
-	url := fmt.Sprintf("https://www.themoviedb.org/movie/%d-%s", detail.Id, app.ConvertString(detail.Title))
+	url := fmt.Sprintf("https://www.imdb.com/title/%s", detail.ImdbId)
 
 	return []string{
 		app.EllipsizeString(detail.Title, 30),

@@ -44,7 +44,7 @@ func formatTvDataDetail(detail TvDataDetail) []string {
 		year = detail.FirstAirDate[:4]
 	}
 
-	url := fmt.Sprintf("https://www.themoviedb.org/tv/%d-%s", detail.Id, app.ConvertString(detail.Name))
+	url := fmt.Sprintf("https://www.themoviedb.org/tv/%d", detail.Id)
 
 	return []string{
 		app.EllipsizeString(detail.Name, 30),

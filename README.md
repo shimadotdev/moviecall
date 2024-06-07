@@ -5,10 +5,9 @@
 **Moviecall** is a CLI application designed to search for movies and TV shows. It is a learning project to practice and improve skills in Go, specifically focusing on concurrency and goroutines. The project will be updated over time to include more features and improvements.
 
 ## Features
-
+- List of Trending movies and TV show
 - Search for movies by title
 - Search for TV shows by title
-- Utilizes Go's concurrency features for efficient searching
 
 ## Installation
 
@@ -23,7 +22,7 @@ The application uses the TMDB (The Movie Database) API for retrieving movie and 
 To build the application, ensure you have created a .env file based on .env.example and added your TMDB API key. Then, run:
 
 ```bash
-make moviecall
+make
 ```
 
 ## Clean
@@ -38,6 +37,19 @@ make clean
 
 To use the application, you can utilize the commands below:
 
+### Trending Movies
+To fetch a list of trending movies right now use the `-tm` flag
+
+```bash
+./moviecall -tm
+```
+
+### Trending TV shows
+To fetch a list of trending movies right now use the `-tt` flag
+
+```bash
+./moviecall -tt
+```
 
 ### Search for a Movie
 
