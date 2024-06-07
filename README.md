@@ -24,6 +24,7 @@ To build the application, ensure you have created a .env file based on .env.exam
 ```bash
 make
 ```
+By running this command, the binary executable file will be placed in the bin directory. From there, you can execute the commands provided by the application.
 
 ## Clean
 

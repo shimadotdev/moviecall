@@ -79,7 +79,7 @@ func SearchByKeyword(searchType, searchTerm string) error {
 func init() {
 	var err error
 	tmdbInstance, err = func() (*TMDB, error) {
-		envPath := "./.env"
+		envPath := "./../.env"
 		if _, err := os.Stat(envPath); os.IsNotExist(err) {
 			return nil, fmt.Errorf(".env file does not exist at path: %v", envPath)
 		}
