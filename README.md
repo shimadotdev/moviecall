@@ -1,3 +1,6 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/shimadotdev/moviecall.svg)](https://pkg.go.dev/github.com/shimadotdev/moviecall)
+[![Tests](https://github.com/shimadotdev/moviecall/actions/workflows/test.yml/badge.svg)](https://github.com/shimadotdev/moviecall/actions/workflows/test.yml)
+
 # Moviecall
 
 ## Overview
