@@ -46,12 +46,9 @@ func EllipsizeString(str string, maxLen int) string {
 
 func ConvertString(input string) string {
 
+	input = strings.TrimSpace(input)
 	re := regexp.MustCompile(`\s+`)
 	singleSpacedString := re.ReplaceAllString(input, " ")
 	result := strings.ReplaceAll(singleSpacedString, " ", "+")
 	return result
-}
-
-func CreateHyperlink(url, text string) string {
-	return fmt.Sprintf("\033]8;;%s\033\\%s\033]8;;\033\\", url, text)
 }
