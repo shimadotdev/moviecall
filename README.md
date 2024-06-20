@@ -71,6 +71,8 @@ To search for a TV show by its title, use the -t flag followed by the TV show na
 ./moviecall -t "tvshow name"
 ```
 
+### Sample Result
+![Sample Result](docs/sample-result.png)
 ### Contributing
 Contributions are welcome! If you have suggestions for improvements or find bugs, please open an issue or submit a pull request.
 
